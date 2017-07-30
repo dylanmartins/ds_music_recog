@@ -1,50 +1,23 @@
 # coding=utf-8
 import os
 import re
-import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
 
 import nltk
-#nltk.download('stopwords')
-from unicodedata import normalize
+# nltk.download('stopwords')
 
 from sklearn.feature_extraction.text import CountVectorizer
-cv = CountVectorizer()
+cv = CountVectorizer(max_features=20000)
 
-stopwords_ = nltk.corpus.stopwords.words('portuguese') + [
-    u'r$', u'0', u'1', u'2', u'3', u'4', u'5', u'6', u'7', u'8', u'9',
-]
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.cross_validation import train_test_split
+
+stopwords_ = nltk.corpus.stopwords.words('portuguese')
 regex = re.compile('[^a-zA-Z]')
 path = os.getcwd() + '/files/lyrics/'
 
-
-def remove_accents(input_str):
-    """
-    :param input_str: String com acentos para serem removidos
-    :return:
-    """
-    text = normalize('NFKD', input_str).encode('ASCII', 'ignore').decode('ASCII')
-    # retirar simbolos especiais
-    text = re.sub('[]')
-    return
-
-
-def div_corpus(corpus, labels):
-    # 20% para testes / 80% treinos
-    percent_div = int(len(corpus)*0.8)
-
-    # Treinos
-    train_x = corpus[:percent_div]
-    train_y = labels[:percent_div]
-
-    # Testes
-    test_x = corpus[percent_div:]
-    test_y = labels[percent_div:]
-
-    return train_x, train_y, test_x, test_y
-
-dados, labels = [], []
+dados, y = [], []
 print('Pegando os dados ...')
 for csv in os.listdir(path):
     # Pegando os dados
@@ -52,22 +25,41 @@ for csv in os.listdir(path):
     data = pd.read_csv(path+csv)
     for x in data['lyric']:
         dados.append(x)
-        labels.append(label)
-
-# Divide treino e teste
-train_x, train_y, test_x, test_y = div_corpus(dados, labels)
+        y.append(label)
 
 corpus = []
 print('Limpando dados ...')
-for dado in train_x:
+for dado in dados:
     # Limpando dados
     teste = regex.sub(dado, ' ').lower()
-    teste = ' '.join([remove_accents(x) for x in teste.split() if x not in set(stopwords_)])
+    teste = ' '.join([x for x in teste.split() if x not in set(stopwords_)])
     corpus.append(teste)
 
 # Bag of words
 print('Criando bag of words ...')
 X = cv.fit_transform(corpus).toarray()
-print('FIM ' + label)
 
-print('eita')
+# Separando teste e treino
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=0)
+
+# Classificador Regressão Logistica
+best_score = {'score': 0.00001, 'name': 1, 'kernel': 'tey'}
+
+print('Testando as configs ..')
+kernels = ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed']
+for kn in kernels:
+    teste_ = 1.0
+    while teste_ <= 10.0:
+        classifier = SVC(C=teste_, kernel=kn)
+        # classifier = LogisticRegression(C=teste_, n_jobs=-2)
+        classifier.fit(X_train, y_train)
+        # Testes
+        score = classifier.score(X_test, y_test)
+        if score > best_score['score']:
+            best_score['score'] = score
+            best_score['name'] = teste_
+            best_score['kernel'] = kn
+        teste_ += 1
+
+print('BEST {0} {1} SCORE {2}'.format(str(best_score['kernel']), str(best_score['name']), str(best_score['score'])))
+print('FIM')
