@@ -1,15 +1,16 @@
 # coding=utf-8
 import os
 import re
+import pickle
 import pandas as pd
 
 import nltk
 # nltk.download('stopwords')
 
 from sklearn.feature_extraction.text import CountVectorizer
-cv = CountVectorizer(max_features=20000)
+# cv = CountVectorizer(max_features=20000)
+cv = CountVectorizer()
 
-from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.cross_validation import train_test_split
 
@@ -40,26 +41,32 @@ print('Criando bag of words ...')
 X = cv.fit_transform(corpus).toarray()
 
 # Separando teste e treino
+# 80% para treino e 20% para testes
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=0)
 
 # Classificador Regressão Logistica
-best_score = {'score': 0.00001, 'name': 1, 'kernel': 'tey'}
+#best_score = {'score': 0.00001, 'name': 1}
 
-print('Testando as configs ..')
-kernels = ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed']
-for kn in kernels:
-    teste_ = 1.0
-    while teste_ <= 10.0:
-        classifier = SVC(C=teste_, kernel=kn)
-        # classifier = LogisticRegression(C=teste_, n_jobs=-2)
-        classifier.fit(X_train, y_train)
-        # Testes
-        score = classifier.score(X_test, y_test)
-        if score > best_score['score']:
-            best_score['score'] = score
-            best_score['name'] = teste_
-            best_score['kernel'] = kn
-        teste_ += 1
+#print('Testando as configs ...')
+#teste_ = 1.0
+#while teste_ <= 10.0:
+    #print(teste_)
+    # classifier = LogisticRegression(C=teste_, n_jobs=-2, solver='lbfgs', multi_class='multinomial')
+    #classifier = LogisticRegression(C=teste_, n_jobs=-2)
+    #classifier.fit(X_train, y_train)
+    # Testes
+    #score = classifier.score(X_test, y_test)
+    #print(score)
+    #print('='*80)
+    #if score > best_score['score']:
+    #    best_score['score'] = score
+    #    best_score['name'] = teste_
+    #teste_ += 2
+#print('>>>>>>>\n')
 
-print('BEST {0} {1} SCORE {2}'.format(str(best_score['kernel']), str(best_score['name']), str(best_score['score'])))
+classifier = LogisticRegression(C=3.0, n_jobs=-2)
+classifier.fit(X_train, y_train)
+print(classifier.score(X_test, y_test)) # 0.83125
+filename = 'song_recog_model.sav'
+pickle.dump(classifier, open(filename, 'wb'))
 print('FIM')
