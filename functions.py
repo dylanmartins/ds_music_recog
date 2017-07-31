@@ -24,6 +24,5 @@ def text_recog(text):
 
     # Bag of words
     X = cv.fit_transform(corpus).toarray()
-    import pdb; pdb.set_trace()
     teste = loaded_model.predict(X)
     return teste[0]
