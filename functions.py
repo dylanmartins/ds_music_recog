@@ -23,6 +23,5 @@ def text_recog(text):
         corpus.append(teste)
 
     # Bag of words
-    X = cv.fit_transform(corpus).toarray()
-    teste = loaded_model.predict(X)
+    teste = loaded_model.predict(corpus)
     return teste[0]
