@@ -1,0 +1,7 @@
+Instale os requirements, todos podem ser encontrados instalando diretamente o Anaconda
+
+Execute "python app.py runserver" no terminal, ira startar o serviço do Flask
+
+Acesse por "http://127.0.0.1:5000/", você irá ver um textarea.
+
+Coloque a letra da musica que você quer que seja classificada neste cmapo e clique em "Classificar".

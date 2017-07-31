@@ -14,7 +14,7 @@ def main_form():
             <form action="submit" id="textform" method="post">
                     <textarea name="text" rows="20" cols="70"></textarea>
                     </br>
-                <input type="submit" value="Submit">
+                <input type="submit" value="Classificar">
             </form>
         </body>
         """
