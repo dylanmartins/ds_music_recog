@@ -24,4 +24,5 @@ def text_recog(text):
 
     # Bag of words
     teste = loaded_model.predict(corpus)
-    return teste[0]
+    proba = max(loaded_model.predict_proba(corpus)[0])
+    return 'Estilo musical: <b>{0}</b></br>Probabilidade: <b>{1}</b>'.format(teste[0], proba)
